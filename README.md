@@ -1,3 +1,5 @@
+> **Demo overview.** This is a React and Vite interface prototype exported from Figma. The source is in [src](src), with original component and asset credits in [src/Attributions.md](src/Attributions.md). Run `npm run build` to produce a static bundle.
+
 
   # Digital Biosecurity Management Portal
 
