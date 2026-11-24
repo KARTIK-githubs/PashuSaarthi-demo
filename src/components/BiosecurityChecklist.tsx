@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Shield, Thermometer, Heart, Clock, Droplets, Trash2, Users, CheckCircle2, ChevronRight, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
@@ -27,7 +27,8 @@ interface BiosecurityChecklistProps {
 
 export function BiosecurityChecklist({ language }: BiosecurityChecklistProps) {
   const [selectedItem, setSelectedItem] = useState<BiosecurityItem | null>(null);
-  const [checklist, setChecklist] = useState<BiosecurityItem[]>([
+  const [checklist, setChecklist] = useState<BiosecurityItem[]>(() => {
+    const items: BiosecurityItem[] = [
     {
       id: 'water',
       icon: Droplets,
@@ -172,7 +173,22 @@ export function BiosecurityChecklist({ language }: BiosecurityChecklistProps) {
         'आगंतुक विवरण रिकॉर्ड करें'
       ]
     }
-  ]);
+    ];
+    try {
+      const saved: unknown = JSON.parse(localStorage.getItem('pashusaarthi-checklist') || 'null');
+      if (Array.isArray(saved) && saved.every(id => typeof id === 'string')) {
+        return items.map(item => ({ ...item, completed: saved.includes(item.id) }));
+      }
+    } catch { /* Use defaults when browser storage cannot be read. */ }
+    return items;
+  });
+
+  useEffect(() => {
+    try {
+      const completedIds = checklist.filter(item => item.completed).map(item => item.id);
+      localStorage.setItem('pashusaarthi-checklist', JSON.stringify(completedIds));
+    } catch { /* Checklist still works when storage is disabled. */ }
+  }, [checklist]);
 
   const toggleItemCompletion = (id: string) => {
     setChecklist(prev => prev.map(item => 
